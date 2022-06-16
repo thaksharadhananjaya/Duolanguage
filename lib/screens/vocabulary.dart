@@ -1,5 +1,6 @@
 import 'package:delayed_display/delayed_display.dart';
 import 'package:duolanguage/config.dart';
+import 'package:duolanguage/util/wrong_dailog.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
@@ -10,9 +11,11 @@ import 'package:speech_to_text/speech_to_text.dart';
 import 'package:text_to_speech/text_to_speech.dart';
 
 import '../util/gradient_text.dart';
+import '../util/win_dialog.dart';
 
 class Vocabulary extends StatefulWidget {
-  const Vocabulary({Key? key}) : super(key: key);
+  final String category;
+  const Vocabulary({Key? key, required this.category}) : super(key: key);
 
   @override
   // ignore: library_private_types_in_public_api
@@ -68,117 +71,39 @@ class _VocabularyState extends State<Vocabulary> {
 
   Future<dynamic> showWinDialog() {
     return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          content: SizedBox(
-              child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DelayedDisplay(
-                delay: const Duration(milliseconds: 500),
-                child: Lottie.asset('assets/jsons/win.json',
-                    repeat: false, width: 230, height: 200),
-              ),
-               Text(
-                "Correct !",
-                style:  GoogleFonts.getFont('Bungee',
-                      textStyle: const TextStyle(
-                          color: kPrimaryColor, fontSize: 22)),
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset('assets/images/score.gif', width: 40, height: 40),
-                   Padding(
-                    padding: const EdgeInsets.only(top: 5, left: 6),
-                    child: Text(
-                      "5",
-                      style:  GoogleFonts.getFont('Bungee',
-                      textStyle: const TextStyle(
-                          color: Color.fromARGB(167, 12, 84, 143), fontSize: 32)),
-                    ),
-                  ),
-                ],
-              )
-            ],
-          )),
-        );
-      },
-    );
+        context: context, builder: (BuildContext context) => const WinDialog());
   }
 
   Future<dynamic> showWrongDialog() {
     return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          content: SizedBox(
-              child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(
-                height: 24,
-              ),
-              DelayedDisplay(
-                delay: const Duration(milliseconds: 200),
-                child: Lottie.asset('assets/jsons/wrong.json',
-                    width: 100, height: 100),
-              ),
-              const SizedBox(
-                height: 36,
-              ),
-              DelayedDisplay(
-                delay: const Duration(milliseconds: 400),
-                child: Text(
-                  "Try Again !",
-                  style: GoogleFonts.getFont('Bungee',
-                      textStyle: const TextStyle(
-                          color: kSeconderyColor, fontSize: 22)),
-                ),
-              ),
-            ],
-          )),
-        );
-      },
-    );
+        context: context,
+        builder: (BuildContext context) => const WrongDialog());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //backgroundColor: kPrimaryColor,
+      backgroundColor: kBackgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(kPadding),
           child: Stack(
-            children: [
-              bulidWords(),
-              buildAnimation(),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    buildActionButtons(),
-                    buildNxtButton(),
-                  ],
-                ),
-              )
-            ],
+            children: [bulidWords(), buildAnimation(), buildButons()],
           ),
         ),
+      ),
+    );
+  }
+
+  Align buildButons() {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          buildActionButtons(),
+          buildNxtButton(),
+        ],
       ),
     );
   }
@@ -189,31 +114,37 @@ class _VocabularyState extends State<Vocabulary> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          InkWell(
-              onTap: () async{
-                if (await Permission.microphone.request().isGranted) {
-                  if (await Permission.bluetooth.request().isGranted) {
-                    !isListining ? startListening() : stopListening();
+          DelayedDisplay(
+            delay: const Duration(milliseconds: 1050),
+            child: InkWell(
+                onTap: () async {
+                  if (await Permission.microphone.request().isGranted) {
+                    if (await Permission.bluetooth.request().isGranted) {
+                      !isListining ? startListening() : stopListening();
+                    }
                   }
-                } 
-                //showWinDialog();
-                //showWrongDialog();
-              },
-              child: Image.asset(
-                'assets/images/mic.png',
-                width: 45,
-                height: 45,
-              )),
+                  //showWinDialog();
+                  //showWrongDialog();
+                },
+                child: Image.asset(
+                  'assets/images/mic.png',
+                  width: 45,
+                  height: 45,
+                )),
+          ),
           const SizedBox(
             width: 50,
           ),
-          InkWell(
-              onTap: () => speak(text),
-              child: Image.asset(
-                'assets/images/speaker.png',
-                width: 45,
-                height: 45,
-              )),
+          DelayedDisplay(
+            delay: const Duration(milliseconds: 1100),
+            child: InkWell(
+                onTap: () => speak(text),
+                child: Image.asset(
+                  'assets/images/speaker.png',
+                  width: 45,
+                  height: 45,
+                )),
+          ),
         ],
       ),
     );
@@ -222,7 +153,7 @@ class _VocabularyState extends State<Vocabulary> {
   Center buildAnimation() {
     return Center(
         child: DelayedDisplay(
-      delay: const Duration(milliseconds: 2000),
+      delay: const Duration(milliseconds: 500),
       child: Lottie.asset('assets/jsons/settings.json'),
     ));
   }
@@ -231,7 +162,7 @@ class _VocabularyState extends State<Vocabulary> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16, right: 100, left: 100),
       child: DelayedDisplay(
-        delay: const Duration(milliseconds: 2500),
+        delay: const Duration(milliseconds: 800),
         child: PushableButton(
           height: 50,
           elevation: 5,
@@ -261,7 +192,7 @@ class _VocabularyState extends State<Vocabulary> {
         child: Column(
           children: [
             DelayedDisplay(
-              delay: const Duration(milliseconds: 2500),
+              delay: const Duration(milliseconds: 900),
               child: SizedBox(
                 width: 200,
                 child: Row(
@@ -294,7 +225,7 @@ class _VocabularyState extends State<Vocabulary> {
               height: 8,
             ),
             DelayedDisplay(
-              delay: const Duration(milliseconds: 2800),
+              delay: const Duration(milliseconds: 1100),
               child: SizedBox(
                 width: 200,
                 child: Row(

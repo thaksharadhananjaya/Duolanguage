@@ -1,4 +1,7 @@
 import 'package:duolanguage/config.dart';
+import 'package:duolanguage/model/quiz_data.dart';
+import 'package:duolanguage/util/win_dialog.dart';
+import 'package:duolanguage/util/wrong_dailog.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
@@ -14,15 +17,20 @@ class Quiz extends StatefulWidget {
 
 class _QuizState extends State<Quiz> {
   int selectedIndex = -1;
-  List<String> link = [
-    'https://assets9.lottiefiles.com/private_files/lf30_oiaetlzu.json',
-    'https://assets5.lottiefiles.com/packages/lf20_flosnlcw.json',
-    'https://assets10.lottiefiles.com/packages/lf20_itqodaed.json',
-    'https://assets10.lottiefiles.com/private_files/lf30_Q1Ptzp.json'
+  List<QuizData> quizData = [
+    QuizData('https://assets9.lottiefiles.com/private_files/lf30_oiaetlzu.json',
+        true),
+    QuizData(
+        'https://assets5.lottiefiles.com/packages/lf20_flosnlcw.json', false),
+    QuizData(
+        'https://assets10.lottiefiles.com/packages/lf20_itqodaed.json', false),
+    QuizData('https://assets10.lottiefiles.com/private_files/lf30_Q1Ptzp.json',
+        false)
   ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kBackgroundColor,
       body: SafeArea(
         child: SizedBox(
           width: double.maxFinite,
@@ -33,28 +41,7 @@ class _QuizState extends State<Quiz> {
                 Align(
                   alignment: Alignment.topCenter,
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 36),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('CHOSE A  ',
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.getFont(
-                                'Bungee',
-                                textStyle: const TextStyle(
-                                    color: kSeconderyColor, fontSize: 24),
-                              )),
-                          Text("'Duck'",
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.getFont(
-                                'Bungee',
-                                textStyle: const TextStyle(
-                                    color: kPrimaryColor, fontSize: 24),
-                              )),
-                        ],
-                      ),
-                    ),
+                    buildTopic(),
                     buildAnsGrid(),
                   ]),
                 ),
@@ -70,20 +57,41 @@ class _QuizState extends State<Quiz> {
     );
   }
 
-  Padding buildAnsGrid() {
+  Padding buildTopic() {
     return Padding(
-      padding: const EdgeInsets.only(top: 42),
-      child: SizedBox(
-        height: 400,
-        width: double.maxFinite,
-        child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, crossAxisSpacing: 24, mainAxisSpacing: 36),
-          itemCount: 4,
-          itemBuilder: (context, index) {
-            return buildAnsCard(index, true);
-          },
-        ),
+      padding: const EdgeInsets.only(top: 36, bottom: 42),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('CHOSE A  ',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.getFont(
+                'Bungee',
+                textStyle:
+                    const TextStyle(color: kSeconderyColor, fontSize: 24),
+              )),
+          Text("'Duck'",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.getFont(
+                'Bungee',
+                textStyle: const TextStyle(color: kPrimaryColor, fontSize: 24),
+              )),
+        ],
+      ),
+    );
+  }
+
+  SizedBox buildAnsGrid() {
+    return SizedBox(
+      height: 400,
+      width: double.maxFinite,
+      child: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, crossAxisSpacing: 24, mainAxisSpacing: 36),
+        itemCount: 4,
+        itemBuilder: (context, index) {
+          return buildAnsCard(index, true);
+        },
       ),
     );
   }
@@ -110,7 +118,7 @@ class _QuizState extends State<Quiz> {
                   offset: Offset(0.0, 4))
             ]),
         child: Lottie.network(
-          link[index],
+          quizData[index].link,
         ),
       ),
     );
@@ -131,7 +139,17 @@ class _QuizState extends State<Quiz> {
             blurRadius: 5,
             offset: const Offset(0, 2),
           ),
-          onPressed: () {},
+          onPressed: () {
+            if (quizData[selectedIndex].isAns) {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) => const WinDialog());
+            } else {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) => const WrongDialog());
+            }
+          },
           child: const Text(
             'CHECK',
             style: TextStyle(
