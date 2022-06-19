@@ -38,13 +38,13 @@ class _VocabularyState extends State<Vocabulary> {
   /// This has to happen only once6 per app
   void initSpeech() async {
     speechEnabled = await speechToText.initialize();
-    print(speechEnabled);
+
     setState(() {});
   }
 
   /// Each time to start a speech recognition session
   void startListening() async {
-    print(speechEnabled);
+
     isListining = true;
     await speechToText.listen(onResult: onSpeechResult);
 

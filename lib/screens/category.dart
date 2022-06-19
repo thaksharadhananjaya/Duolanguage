@@ -83,7 +83,7 @@ class _CategoryState extends State<Category> {
         decoration: BoxDecoration(
             color: index % 2 == 0
                 ? const Color.fromARGB(255, 200, 201, 241)
-                : Color.fromARGB(255, 236, 200, 241),
+                : const Color.fromARGB(255, 236, 200, 241),
             borderRadius: BorderRadius.circular(32),
             boxShadow: const [
               BoxShadow(

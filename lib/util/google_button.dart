@@ -1,0 +1,57 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+
+import '../firebase/authentication.dart';
+
+class GoogleButton extends StatefulWidget {
+  const GoogleButton({Key? key}) : super(key: key);
+
+  @override
+  State<GoogleButton> createState() => _GoogleButtonState();
+}
+
+class _GoogleButtonState extends State<GoogleButton> {
+  bool progress = false;
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: progress
+          ? null
+          : () async {
+              setState(() {
+                progress = true;
+              });
+              User? user =
+                  await Authentication.signInWithGoogle(context: context);
+              setState(() {
+                progress = false;
+              });
+              print(user);
+              // await Authentication.signOut(context: context);
+            },
+      child: SizedBox(
+        width: 50,
+        height: 50,
+        child: Card(
+            color: Colors.white,
+            elevation: 5,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: progress
+                  ? const SizedBox(
+                      width: 26,
+                      height: 26,
+                      child: CircularProgressIndicator())
+                  : Image.asset(
+                      "assets/images/google.png",
+                      width: 30,
+                      height: 30,
+                    ),
+            )),
+      ),
+    );
+  }
+}
