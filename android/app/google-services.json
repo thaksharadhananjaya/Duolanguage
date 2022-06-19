@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "554327481944",
+    "project_id": "duolanguage-7cc34",
+    "storage_bucket": "duolanguage-7cc34.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:554327481944:android:6c83353af557c2e75bf42d",
+        "android_client_info": {
+          "package_name": "com.duolanguage.duolanguage"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "554327481944-t419rhjtgdesn5ch1fvsk015buc2a83i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.duolanguage.duolanguage",
+            "certificate_hash": "ddc50e17cee3d903b6f37b01fa53b46cc3291ad3"
+          }
+        },
+        {
+          "client_id": "554327481944-491m25uifoajhha7hk6s6l2pqhpeqj18.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhVhlNGccGyMjLNzdgH1AlD04-ZCVSH2o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "554327481944-491m25uifoajhha7hk6s6l2pqhpeqj18.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "554327481944-b0el6phkglqns8ht69jjefflokguo4i3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.duolanguage.duolanguage"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
