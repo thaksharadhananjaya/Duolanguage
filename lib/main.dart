@@ -1,7 +1,6 @@
 import 'package:duolanguage/screens/category.dart';
 import 'package:duolanguage/screens/quiz.dart';
 import 'package:duolanguage/screens/signin.dart';
-import 'package:duolanguage/screens/signup.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -28,7 +27,7 @@ class MyApp extends StatelessWidget {
           textTheme: const TextTheme(
             headline4: TextStyle(fontWeight: FontWeight.w700, fontSize: 24),
           )),
-      home: const Signup(),
+      home: const Signin(),
     );
   }
 }

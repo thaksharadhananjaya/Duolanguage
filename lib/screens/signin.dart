@@ -1,12 +1,18 @@
 import 'package:duolanguage/config.dart';
+import 'package:duolanguage/screens/signup.dart';
+import 'package:duolanguage/util/emailfeild.dart';
 import 'package:duolanguage/util/google_button.dart';
+import 'package:duolanguage/util/passowrdfield.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pushable_button/pushable_button.dart';
 
-
+import '../firebase/authentication.dart';
 import '../util/gradient_text.dart';
+import '../util/custom_button.dart';
+import 'verifi_email.dart';
 
 class Signin extends StatefulWidget {
   const Signin({Key? key}) : super(key: key);
@@ -16,7 +22,7 @@ class Signin extends StatefulWidget {
 }
 
 class _SigninState extends State<Signin> {
-  TextEditingController textEditingControllerUser = TextEditingController();
+  TextEditingController textEditingControllerEmail = TextEditingController();
   TextEditingController textEditingControllerPass = TextEditingController();
   bool passVisible = true;
   @override
@@ -44,16 +50,18 @@ class _SigninState extends State<Signin> {
                     style: GoogleFonts.getFont('Poppins',
                         textStyle: buildLabelStyle()),
                   ),
-                  buildEmailTextFeild(),
+                  EmailField(controller: textEditingControllerEmail),
                   Text(
                     "  Password",
                     style: GoogleFonts.getFont('Poppins',
                         textStyle: buildLabelStyle()),
                   ),
-                  buildPswdTextFeild(),
+                  PasswordField(
+                    controller: textEditingControllerPass,
+                    hint: "Password",
+                  ),
                   Padding(
                     padding: const EdgeInsets.only(
-                      top: 36,
                       bottom: 16,
                     ),
                     child: Row(
@@ -116,7 +124,10 @@ class _SigninState extends State<Signin> {
           ]),
         ),
         InkWell(
-          onTap: () {},
+          onTap: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const Signup()));
+          },
           child: Text(
             "Sign up",
             style: GoogleFonts.getFont(
@@ -129,126 +140,21 @@ class _SigninState extends State<Signin> {
     );
   }
 
-  SizedBox buildSigninButton() {
-    return SizedBox(
-      width: 160,
-      child: PushableButton(
-        height: 48,
-        elevation: 5,
-        hslColor: HSLColor.fromColor(kSeconderyColor),
-        shadow: BoxShadow(
-          color: Colors.grey.withOpacity(0.5),
-          spreadRadius: 3,
-          blurRadius: 5,
-          offset: const Offset(0, 2),
-        ),
-        onPressed: () {},
-        child: Text(
-          'SIGN IN',
-          style: GoogleFonts.getFont(
-            'Bungee',
-            textStyle: const TextStyle(color: Colors.white, fontSize: 24),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Container buildEmailTextFeild() {
-    return Container(
-      height: 50,
-      alignment: Alignment.center,
-      margin: const EdgeInsets.only(top: 8, bottom: 48),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: buildTextContDecoration(),
-      child: TextFormField(
-        controller: textEditingControllerUser,
-        style: GoogleFonts.getFont(
-          'Poppins',
-        ),
-        maxLength: 150,
-        decoration: InputDecoration(
-            hintText: "Email",
-            counterText: '',
-            prefixIcon: const Icon(
-              Icons.email,
-              color: kPrimaryColor,
-            ),
-            hintStyle: GoogleFonts.getFont(
-              'Poppins',
-              textStyle: const TextStyle(color: Colors.grey),
-            ),
-            border: InputBorder.none,
-            enabledBorder: InputBorder.none,
-            focusedBorder: InputBorder.none,
-            disabledBorder: InputBorder.none,
-            errorBorder: InputBorder.none),
-      ),
-    );
-  }
-
-  Container buildPswdTextFeild() {
-    return Container(
-      height: 50,
-      alignment: Alignment.center,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: buildTextContDecoration(),
-      child: TextFormField(
-        obscureText: passVisible,
-        controller: textEditingControllerPass,
-        style: GoogleFonts.getFont(
-          'Poppins',
-        ),
-        maxLength: 8,
-        decoration: InputDecoration(
-            hintText: "Password",
-            counterText: '',
-            prefixIcon: const Icon(
-              Icons.lock,
-              color: kPrimaryColor,
-            ),
-            hintStyle: GoogleFonts.getFont(
-              'Poppins',
-              textStyle: const TextStyle(color: Colors.grey),
-            ),
-            suffixIcon: InkWell(
-                onTap: (() => setState(() {
-                      passVisible ? passVisible = false : passVisible = true;
-                    })),
-                child: passVisible
-                    ? const Icon(
-                        Icons.visibility_off,
-                        color: kPrimaryColor,
-                      )
-                    : const Icon(
-                        Icons.visibility,
-                        color: kPrimaryColor,
-                      )),
-            border: InputBorder.none,
-            enabledBorder: InputBorder.none,
-            focusedBorder: InputBorder.none,
-            disabledBorder: InputBorder.none,
-            errorBorder: InputBorder.none),
-      ),
-    );
-  }
-
-//*****  Decorations *****
-  BoxDecoration buildTextContDecoration() {
-    return BoxDecoration(
-        color: const Color.fromARGB(255, 220, 217, 248),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(
-              color: Color.fromARGB(255, 174, 135, 238),
-              blurRadius: 0.4,
-              offset: Offset(0.0, 4))
-        ]);
-  }
-
-  TextStyle buildLabelStyle() {
-    return const TextStyle(
-        color: kPrimaryColor, fontSize: 15, fontWeight: FontWeight.w500);
+  CustomButton buildSigninButton() {
+    return CustomButton(
+        onPress: () async {
+          User? user = await Authentication.signInWithEmailAndPassword(context: context,
+              email: "thaksharadghananjaya@gmail.com", password: "1234556");
+          if (!mounted) return;
+          if (user != null) {
+            if (user.emailVerified) {
+            } else {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const EmailVerify()));
+            }
+          }
+        },
+        label: "SIGN IN",
+        width: 160.0);
   }
 }
