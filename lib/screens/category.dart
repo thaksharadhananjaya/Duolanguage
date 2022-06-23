@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:duolanguage/config.dart';
 import 'package:duolanguage/screens/vocabulary.dart';
+import 'package:duolanguage/util/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -23,59 +25,74 @@ class _CategoryState extends State<Category> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      body: SafeArea(
-          child: Padding(
+      appBar: CustomAppBar(),
+      body: Padding(
         padding: const EdgeInsets.all(kPadding),
         child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 42, top: 36),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("SELECT  ",
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.getFont(
-                        'Bungee',
-                        textStyle: const TextStyle(
-                            color: kSeconderyColor, fontSize: 28),
-                      )),
-                  Text("CATEGORY",
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.getFont(
-                        'Bungee',
-                        textStyle:
-                            const TextStyle(color: kPrimaryColor, fontSize: 28),
-                      )),
-                ],
-              ),
-            ),
-            buildCategoryList(),
-          ],
+      children: [
+        buildTopic(),
+        FutureBuilder<QuerySnapshot>(
+            future:
+                FirebaseFirestore.instance.collection('vocabulary').get(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return buildCategoryList(snapshot);
+              }
+              return const Center(
+                  child: SizedBox(
+                      width: 100,
+                      height: 100,
+                      child: CircularProgressIndicator()));
+            }),
+      ],
         ),
-      )),
+      ),
     );
   }
 
-  SizedBox buildCategoryList() {
-    double height = MediaQuery.of(context).size.height * 0.785;
+  Padding buildTopic() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 42, top: kPadding),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text("SELECT  ",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.getFont(
+                'Bungee',
+                textStyle:
+                    const TextStyle(color: kSeconderyColor, fontSize: 28),
+              )),
+          Text("CATEGORY",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.getFont(
+                'Bungee',
+                textStyle: const TextStyle(color: kPrimaryColor, fontSize: 28),
+              )),
+        ],
+      ),
+    );
+  }
+
+  SizedBox buildCategoryList(AsyncSnapshot snapshot) {
+    double height = MediaQuery.of(context).size.height * 0.7;
     return SizedBox(
       height: height,
       child: ListView.builder(
-          itemCount: category.length,
+          itemCount: snapshot.data.docs.length,
           itemBuilder: (context, index) {
-            return buildCard(index, category[index][0], category[index][1]);
+            DocumentSnapshot data = snapshot.data!.docs[index];
+            
+            return buildCard(index, data['category'], data['link'], data.id);
           }),
     );
   }
 
-  InkWell buildCard(int index, String text, String link) {
+  InkWell buildCard(int index, String text, String link, String docID) {
     return InkWell(
       onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => Vocabulary(category: text)));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => Vocabulary(docID: docID)));
       },
       child: Container(
         height: 200,

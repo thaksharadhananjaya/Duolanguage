@@ -41,8 +41,11 @@ dependencies:
   permission_handler: ^9.2.0
   google_fonts: ^3.0.1
   firebase_core: ^1.18.0
+  cloud_firestore: ^3.1.18
   firebase_auth: ^3.3.20
   google_sign_in: ^5.3.3
+  country_icons: ^2.0.2
+  cached_network_image: ^3.2.1
 
 dev_dependencies:
   flutter_test:
@@ -67,7 +70,8 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/jsons/settings.json
+    - assets/jsons/voc.json
+    - assets/jsons/quiz.json
     - assets/jsons/win.json
     - assets/jsons/wrong.json
     - assets/jsons/learn.json
@@ -79,8 +83,10 @@ flutter:
     - assets/images/google.png
     - assets/images/sign2.png
     - assets/images/speaker.png
+    - assets/images/rect.jpg
     - assets/images/mic.png
     - assets/images/score.gif
+    - assets/images/point.gif
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

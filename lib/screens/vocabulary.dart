@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delayed_display/delayed_display.dart';
 import 'package:duolanguage/config.dart';
+import 'package:duolanguage/util/custom_appbar.dart';
 import 'package:duolanguage/util/wrong_dailog.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,8 +16,8 @@ import '../util/gradient_text.dart';
 import '../util/win_dialog.dart';
 
 class Vocabulary extends StatefulWidget {
-  final String category;
-  const Vocabulary({Key? key, required this.category}) : super(key: key);
+  final String docID;
+  const Vocabulary({Key? key, required this.docID}) : super(key: key);
 
   @override
   // ignore: library_private_types_in_public_api
@@ -28,6 +30,9 @@ class _VocabularyState extends State<Vocabulary> {
   bool isListining = false;
   String recognizedWords = "";
   String text = 'Carpenter';
+
+  int pageIndex = 0;
+  int maxPage = 0;
 
   @override
   void initState() {
@@ -44,7 +49,6 @@ class _VocabularyState extends State<Vocabulary> {
 
   /// Each time to start a speech recognition session
   void startListening() async {
-
     isListining = true;
     await speechToText.listen(onResult: onSpeechResult);
 
@@ -84,13 +88,43 @@ class _VocabularyState extends State<Vocabulary> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(kPadding),
-          child: Stack(
-            children: [bulidWords(), buildAnimation(), buildButons()],
-          ),
-        ),
+      appBar: CustomAppBar(),
+      body: Padding(
+        padding: const EdgeInsets.all(kPadding),
+        child: FutureBuilder<QuerySnapshot>(
+            future: FirebaseFirestore.instance
+                .collection('vocabulary')
+                .doc(widget.docID)
+                .collection("words")
+                .get(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                DocumentSnapshot data = snapshot.data!.docs[pageIndex];
+                maxPage = snapshot.data!.docs.length;
+                text = data['word'];
+                return Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: Text(
+                        text.toUpperCase(),
+                        style: GoogleFonts.getFont(
+                          'Bungee',
+                          textStyle: const TextStyle(
+                            color: kPrimaryColor,
+                            fontSize: 24,
+                          ),
+                        ),
+                      ),
+                    ),
+                    bulidWords(data['translate']),
+                    buildAnimation(data['link']),
+                    buildButons()
+                  ],
+                );
+              }
+              return const Center(child: CircularProgressIndicator());
+            }),
       ),
     );
   }
@@ -150,11 +184,11 @@ class _VocabularyState extends State<Vocabulary> {
     );
   }
 
-  Center buildAnimation() {
+  Center buildAnimation(String link) {
     return Center(
         child: DelayedDisplay(
       delay: const Duration(milliseconds: 500),
-      child: Lottie.asset('assets/jsons/settings.json'),
+      child: Lottie.network(link, height: 350),
     ));
   }
 
@@ -173,89 +207,79 @@ class _VocabularyState extends State<Vocabulary> {
             blurRadius: 5,
             offset: const Offset(0, 2),
           ),
-          onPressed: () {},
-          child: const Text(
-            'NEXT',
-            style: TextStyle(
-                fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold),
-          ),
+          onPressed: () {
+            if (pageIndex < maxPage - 1) {
+              setState(() {
+                pageIndex++;
+              });
+            }
+          },
+          child: Text('NEXT',
+              style: GoogleFonts.getFont(
+                'Bungee',
+                textStyle: const TextStyle(color: Colors.white, fontSize: 22),
+              )),
         ),
       ),
     );
   }
 
-  Align bulidWords() {
+  Align bulidWords(List words) {
     return Align(
       alignment: Alignment.topCenter,
       child: Padding(
-        padding: const EdgeInsets.only(top: 24),
-        child: Column(
-          children: [
-            DelayedDisplay(
-              delay: const Duration(milliseconds: 900),
-              child: SizedBox(
-                width: 200,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Tooltip(
-                      message: 'English',
-                      child: Image.asset(
-                        'assets/images/us_flag.jpg',
-                        width: 30,
-                        height: 25,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 14,
-                    ),
-                    GradientText(
-                      'Carpenter',
-                      style: Theme.of(context).textTheme.headline4,
-                      gradient: const LinearGradient(colors: [
-                        kPrimaryColor,
-                        kSeconderyColor,
-                      ]),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 8,
-            ),
-            DelayedDisplay(
-              delay: const Duration(milliseconds: 1100),
-              child: SizedBox(
-                width: 200,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Tooltip(
-                      message: 'Spanish',
-                      child: Image.asset(
-                        'assets/images/spanish_flag.jpg',
-                        width: 30,
-                        height: 25,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 14,
-                    ),
-                    GradientText(
-                      'Carpintero',
-                      style: Theme.of(context).textTheme.headline4,
-                      gradient: const LinearGradient(colors: [
-                        kPrimaryColor,
-                        Color.fromARGB(255, 65, 9, 196)
-                      ]),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          ],
+        padding: const EdgeInsets.only(top: 56),
+        child: SizedBox(
+          width: 200,
+          height: 400,
+          child: ListView.builder(
+              itemCount: words.length,
+              itemBuilder: (context, index) {
+                return buildWord(words[index]['lang'], words[index]['word'],
+                    900 + index * 10);
+              }),
         ),
+      ),
+    );
+  }
+
+  DelayedDisplay buildWord(String lang, String word, int time) {
+    return DelayedDisplay(
+      delay: Duration(milliseconds: time),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Tooltip(
+            message: lang,
+            child: Image.asset(
+              'icons/flags/png/${lang.substring(0, 2).toLowerCase()}.png',
+              package: 'country_icons',
+              width: 30,
+              height: 25,
+              errorBuilder: (context, exception, stackTrace) {
+                return Image.asset(
+                  "assets/images/rect.jpg",
+                  width: 30,
+                  height: 25,
+                );
+              },
+            ),
+          ),
+          const SizedBox(
+            width: 14,
+          ),
+          GradientText(
+            word,
+            style: GoogleFonts.getFont(
+              'Poppins',
+              textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            gradient: const LinearGradient(colors: [
+              kPrimaryColor,
+              kSeconderyColor,
+            ]),
+          ),
+        ],
       ),
     );
   }

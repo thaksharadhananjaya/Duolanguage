@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import '../util/custom_snakbar.dart';
+
 class Authentication {
   static Future<User?> signInWithGoogle({required BuildContext context}) async {
     FirebaseAuth auth = FirebaseAuth.instance;
@@ -29,17 +31,11 @@ class Authentication {
       } on FirebaseAuthException catch (e) {
         if (e.code == 'email-already-in-use' ||
             e.code == 'account-exists-with-different-credential') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            Authentication.buildCustomSnakBar(
-              'The email address is already in use by another account.',
-            ),
-          );
+          
+          showCustomSnakBar('The email address is already in use by another account.', context);
         } else if (e.code == 'invalid-credential') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            Authentication.buildCustomSnakBar(
-              'Error occurred while accessing credentials. Try again.',
-            ),
-          );
+         
+          showCustomSnakBar('Error occurred while accessing credentials. Try again.', context);
         }
       } catch (e) {
         print(e);
@@ -67,27 +63,19 @@ class Authentication {
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use' ||
           e.code == 'account-exists-with-different-credential') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          Authentication.buildCustomSnakBar(
-            'The email address is already in use by another account.',
-          ),
-        );
+            showCustomSnakBar('The email address is already in use by another account.', context);
+       
       } else if (e.code == 'invalid-credential') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          Authentication.buildCustomSnakBar(
-            'Error occurred while accessing credentials. Try again.',
-          ),
-        );
+        showCustomSnakBar('Error occurred while accessing credentials. Try again.', context);
       }
     }
     return user;
   }
 
-  static Future<User?> signInWithEmailAndPassword({
-     required BuildContext context,
+  static Future<User?> signInWithEmailAndPassword(
+      {required BuildContext context,
       required String email,
-      required String password
-  }) async {
+      required String password}) async {
     FirebaseAuth auth = FirebaseAuth.instance;
     User? user;
     try {
@@ -96,15 +84,11 @@ class Authentication {
         password: password,
       );
 
-      user=userCredential.user;
+      user = userCredential.user;
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'wrong-password' ||
-          e.code == 'user-not-found') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          Authentication.buildCustomSnakBar(
-            'Wrong email or password !',
-          ),
-        );
+      if (e.code == 'wrong-password' || e.code == 'user-not-found') {
+        showCustomSnakBar('Wrong email or password !.', context);
+       
       }
     }
     return user;
@@ -117,11 +101,7 @@ class Authentication {
       await googleSignIn.signOut();
       await FirebaseAuth.instance.signOut();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        Authentication.buildCustomSnakBar(
-          'Error signing out. Try again.',
-        ),
-      );
+      showCustomSnakBar('Error signing out. Try again.', context);
     }
   }
 
@@ -137,13 +117,5 @@ class Authentication {
     }
   }
 
-  static SnackBar buildCustomSnakBar(String content) {
-    return SnackBar(
-      backgroundColor: Colors.black,
-      content: Text(
-        content,
-        style: const TextStyle(color: Colors.redAccent, letterSpacing: 0.5),
-      ),
-    );
-  }
+  
 }
