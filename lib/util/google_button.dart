@@ -1,4 +1,4 @@
-import 'package:duolanguage/screens/quiz.dart';
+import 'package:duolanguage/screens/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -27,7 +27,7 @@ class _GoogleButtonState extends State<GoogleButton> {
               if (!mounted) return;
               if (user != null) {
                 Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const Quiz()));
+                    MaterialPageRoute(builder: (context) => const Home()));
               }
               setState(() {
                 progress = false;

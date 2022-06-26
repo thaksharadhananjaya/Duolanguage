@@ -12,6 +12,8 @@ import 'package:lottie/lottie.dart';
 import 'package:pushable_button/pushable_button.dart';
 import 'package:delayed_display/delayed_display.dart';
 
+import '../util/gradient_text.dart';
+
 class Quiz extends StatefulWidget {
   const Quiz({Key? key}) : super(key: key);
 
@@ -27,7 +29,7 @@ class _QuizState extends State<Quiz> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(),
+      appBar: CustomAppBar(context, true),
       backgroundColor: kBackgroundColor,
       body: SizedBox(
         width: double.maxFinite,
@@ -70,26 +72,30 @@ class _QuizState extends State<Quiz> {
     );
   }
 
-  Padding buildTopic(String word) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 36, bottom: 42),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('CHOSE A  ',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.getFont(
-                'Bungee',
-                textStyle:
-                    const TextStyle(color: kSeconderyColor, fontSize: 24),
-              )),
-          Text("'$word'",
-              textAlign: TextAlign.center,
-              style: GoogleFonts.getFont(
-                'Bungee',
-                textStyle: const TextStyle(color: kPrimaryColor, fontSize: 24),
-              )),
-        ],
+  DelayedDisplay buildTopic(String word) {
+    return DelayedDisplay(
+      delay: const Duration(microseconds: 100),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 36, bottom: 42),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('CHOSE A  ',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.getFont(
+                  'Bungee',
+                  textStyle:
+                      const TextStyle(color: kSeconderyColor, fontSize: 24),
+                )),
+            Text("'$word'",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.getFont(
+                  'Bungee',
+                  textStyle:
+                      const TextStyle(color: kPrimaryColor, fontSize: 24),
+                )),
+          ],
+        ),
       ),
     );
   }
@@ -110,29 +116,32 @@ class _QuizState extends State<Quiz> {
     );
   }
 
-  GestureDetector buildAnsCard(int index, String link, bool isAns) {
+  DelayedDisplay buildAnsCard(int index, String link, bool isAns) {
     double width = ((MediaQuery.of(context).size.width) - 48) / 2;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedIndex = index;
-        });
-      },
-      child: Container(
-        width: width,
-        height: width,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-            color: selectedIndex != index ? Colors.white : Colors.white24,
-            borderRadius: BorderRadius.circular(32),
-            boxShadow: const [
-              BoxShadow(
-                  color: Color.fromARGB(255, 207, 206, 206),
-                  blurRadius: 0.4,
-                  offset: Offset(0.0, 4))
-            ]),
-        child: Lottie.network(
-          link,
+    return DelayedDisplay(
+      delay: Duration(microseconds: 100 + 50 * index),
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            selectedIndex = index;
+          });
+        },
+        child: Container(
+          width: width,
+          height: width,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+              color: selectedIndex != index ? Colors.white : Colors.white24,
+              borderRadius: BorderRadius.circular(32),
+              boxShadow: const [
+                BoxShadow(
+                    color: Color.fromARGB(255, 207, 206, 206),
+                    blurRadius: 0.4,
+                    offset: Offset(0.0, 4))
+              ]),
+          child: Lottie.network(
+            link,
+          ),
         ),
       ),
     );
@@ -142,7 +151,7 @@ class _QuizState extends State<Quiz> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 32, right: 100, left: 100),
       child: DelayedDisplay(
-        delay: const Duration(milliseconds: 2500),
+        delay: const Duration(milliseconds: 500),
         child: PushableButton(
           height: 50,
           elevation: 5,
@@ -164,6 +173,51 @@ class _QuizState extends State<Quiz> {
     );
   }
 
+  AlertDialog showCompleteDailog() {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      content: SizedBox(
+          child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          DelayedDisplay(
+            delay: const Duration(milliseconds: 50),
+            child: Lottie.asset('assets/jsons/complete.json',
+                repeat: false, width: 230, height: 200),
+          ),
+          DelayedDisplay(
+            delay: const Duration(milliseconds: 300),
+            child: GradientText(
+              "Congratulations !",
+              style: GoogleFonts.poppins(
+                textStyle:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              gradient: const LinearGradient(colors: [
+                kPrimaryColor,
+                kSeconderyColor,
+              ]),
+            ),
+          ),
+          DelayedDisplay(
+            delay: const Duration(milliseconds: 400),
+            child: Text(
+              "Complete All Quizes",
+              style: GoogleFonts.poppins(
+                  textStyle: const TextStyle(color: Colors.green, fontSize: 16)),
+            ),
+          ),
+          const SizedBox(
+            height: 8,
+          ),
+        ],
+      )),
+    );
+  }
+
   Future<void> checkAnswer(data) async {
     if (selectedIndex == 0) {
       showCustomSnakBar("Please select your answer !", context);
@@ -177,7 +231,9 @@ class _QuizState extends State<Quiz> {
       if (pageIndex < maxPage - 1) {
         await showDialog(
             context: context,
-            builder: (BuildContext context) => const WinDialog());
+            builder: (BuildContext context) => const WinDialog(
+                  isPoint: true,
+                ));
         Future.delayed(const Duration(milliseconds: 500), () {
           setState(() {
             selectedIndex = -1;
@@ -185,9 +241,11 @@ class _QuizState extends State<Quiz> {
           });
         });
       } else {
-        showDialog(
+        await showDialog(
             context: context,
-            builder: (BuildContext context) => const WinDialog());
+            builder: (BuildContext context) => showCompleteDailog());
+        if (!mounted) return;
+        Navigator.pop(context);
       }
     } else {
       await showDialog(

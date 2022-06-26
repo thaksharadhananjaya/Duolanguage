@@ -1,4 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -28,17 +32,22 @@ class Authentication {
             await auth.signInWithCredential(credential);
 
         user = userCredential.user;
+        await setPoints(user!.uid);
       } on FirebaseAuthException catch (e) {
         if (e.code == 'email-already-in-use' ||
             e.code == 'account-exists-with-different-credential') {
-          
-          showCustomSnakBar('The email address is already in use by another account.', context);
+          showCustomSnakBar(
+              'The email address is already in use by another account.',
+              context);
         } else if (e.code == 'invalid-credential') {
-         
-          showCustomSnakBar('Error occurred while accessing credentials. Try again.', context);
+          showCustomSnakBar(
+              'Error occurred while accessing credentials. Try again.',
+              context);
         }
       } catch (e) {
-        print(e);
+        if (kDebugMode) {
+          print(e);
+        }
       }
     }
 
@@ -60,13 +69,16 @@ class Authentication {
       user = userCredential.user;
       user?.sendEmailVerification();
       await user?.updateDisplayName(user.email);
+      print(user?.uid);
+      await setPoints(user!.uid);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use' ||
           e.code == 'account-exists-with-different-credential') {
-            showCustomSnakBar('The email address is already in use by another account.', context);
-       
+        showCustomSnakBar(
+            'The email address is already in use by another account.', context);
       } else if (e.code == 'invalid-credential') {
-        showCustomSnakBar('Error occurred while accessing credentials. Try again.', context);
+        showCustomSnakBar(
+            'Error occurred while accessing credentials. Try again.', context);
       }
     }
     return user;
@@ -88,7 +100,6 @@ class Authentication {
     } on FirebaseAuthException catch (e) {
       if (e.code == 'wrong-password' || e.code == 'user-not-found') {
         showCustomSnakBar('Wrong email or password !.', context);
-       
       }
     }
     return user;
@@ -105,6 +116,17 @@ class Authentication {
     }
   }
 
+  static Future<void> sendPasswordRestLink(
+      {required BuildContext context, required String email}) async {
+    try {
+      FirebaseAuth auth = FirebaseAuth.instance;
+      await auth.sendPasswordResetEmail(email: email);
+      showCustomSnakBar('Password rest link sent to \n$email.', context, color: Colors.green);
+    } on FirebaseAuthException catch (e) {
+      showCustomSnakBar(e.message.toString(), context);
+    }
+  }
+
   static Future<bool> updateUserName(String name) async {
     try {
       final FirebaseAuth auth = FirebaseAuth.instance;
@@ -117,5 +139,16 @@ class Authentication {
     }
   }
 
-  
+  static Future<void> setPoints(String uid) async {
+    print("uid: $uid");
+    try {
+      DocumentReference point =
+          FirebaseFirestore.instance.collection('user').doc(uid);
+      await point.set({'point': 0});
+    } on FirebaseException catch (error) {
+      if (kDebugMode) {
+        print(error);
+      }
+    }
+  }
 }

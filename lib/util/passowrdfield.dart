@@ -3,9 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PasswordField extends StatefulWidget {
-  TextEditingController controller = TextEditingController();
+  final TextEditingController controller;
+  final ValueChanged<dynamic> validator;
   final String hint;
-  PasswordField({Key? key, required this.controller, required this.hint})
+  const PasswordField(
+      {Key? key,
+      required this.controller,
+      required this.hint,
+      required this.validator})
       : super(key: key);
 
   @override
@@ -19,15 +24,19 @@ class _PasswordFieldState extends State<PasswordField> {
     return Container(
       height: 50,
       alignment: Alignment.center,
-      margin: const EdgeInsets.only(top: 8, bottom: 48),
+      margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: buildTextContDecoration(),
       child: TextFormField(
         obscureText: passVisible,
         controller: widget.controller,
+        keyboardType: TextInputType.visiblePassword,
         style: GoogleFonts.getFont(
           'Poppins',
         ),
+        validator: (text) {
+          widget.validator(text);
+        },
         maxLength: 8,
         decoration: InputDecoration(
             hintText: widget.hint,
@@ -62,5 +71,3 @@ class _PasswordFieldState extends State<PasswordField> {
     );
   }
 }
-
-

@@ -29,7 +29,7 @@ class _VocabularyState extends State<Vocabulary> {
   bool speechEnabled = false;
   bool isListining = false;
   String recognizedWords = "";
-  String text = 'Carpenter';
+  String text = '';
 
   int pageIndex = 0;
   int maxPage = 0;
@@ -56,7 +56,7 @@ class _VocabularyState extends State<Vocabulary> {
   }
 
   void onSpeechResult(SpeechRecognitionResult result) {
-    print(recognizedWords);
+    
     recognizedWords = result.recognizedWords.toString();
   }
 
@@ -75,7 +75,7 @@ class _VocabularyState extends State<Vocabulary> {
 
   Future<dynamic> showWinDialog() {
     return showDialog(
-        context: context, builder: (BuildContext context) => const WinDialog());
+        context: context, builder: (BuildContext context) => const WinDialog(isPoint: false,));
   }
 
   Future<dynamic> showWrongDialog() {
@@ -88,7 +88,7 @@ class _VocabularyState extends State<Vocabulary> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      appBar: CustomAppBar(),
+      appBar: CustomAppBar(context, true),
       body: Padding(
         padding: const EdgeInsets.all(kPadding),
         child: FutureBuilder<QuerySnapshot>(
@@ -151,7 +151,7 @@ class _VocabularyState extends State<Vocabulary> {
           DelayedDisplay(
             delay: const Duration(milliseconds: 1050),
             child: InkWell(
-                onTap: () async {
+                onTap: text!=''? () async {
                   if (await Permission.microphone.request().isGranted) {
                     if (await Permission.bluetooth.request().isGranted) {
                       !isListining ? startListening() : stopListening();
@@ -159,7 +159,7 @@ class _VocabularyState extends State<Vocabulary> {
                   }
                   //showWinDialog();
                   //showWrongDialog();
-                },
+                }: null,
                 child: Image.asset(
                   'assets/images/mic.png',
                   width: 45,
@@ -172,7 +172,7 @@ class _VocabularyState extends State<Vocabulary> {
           DelayedDisplay(
             delay: const Duration(milliseconds: 1100),
             child: InkWell(
-                onTap: () => speak(text),
+                onTap: () => text!=''? speak(text) : null,
                 child: Image.asset(
                   'assets/images/speaker.png',
                   width: 45,
@@ -212,9 +212,11 @@ class _VocabularyState extends State<Vocabulary> {
               setState(() {
                 pageIndex++;
               });
+            }else{
+              Navigator.pop(context);
             }
           },
-          child: Text('NEXT',
+          child: Text(pageIndex < maxPage - 1? 'NEXT':'HOME',
               style: GoogleFonts.getFont(
                 'Bungee',
                 textStyle: const TextStyle(color: Colors.white, fontSize: 22),
@@ -270,9 +272,9 @@ class _VocabularyState extends State<Vocabulary> {
           ),
           GradientText(
             word,
-            style: GoogleFonts.getFont(
-              'Poppins',
-              textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: GoogleFonts.poppins(
+            
+              textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             gradient: const LinearGradient(colors: [
               kPrimaryColor,

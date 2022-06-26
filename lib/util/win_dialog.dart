@@ -6,7 +6,8 @@ import 'package:lottie/lottie.dart';
 import '../config.dart';
 
 class WinDialog extends StatelessWidget {
-  const WinDialog({Key? key}) : super(key: key);
+  final bool isPoint;
+  const WinDialog({Key? key, required this.isPoint}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -32,21 +33,24 @@ class WinDialog extends StatelessWidget {
           const SizedBox(
             height: 8,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset('assets/images/score.gif', width: 40, height: 40),
-              Padding(
-                padding: const EdgeInsets.only(top: 5, left: 6),
-                child: Text(
-                  "5",
-                  style: GoogleFonts.getFont('Bungee',
-                      textStyle: const TextStyle(
-                          color: Color.fromARGB(167, 12, 84, 143),
-                          fontSize: 32)),
+          Visibility(
+            visible: isPoint,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset('assets/images/score.gif', width: 40, height: 40),
+                Padding(
+                  padding: const EdgeInsets.only(top: 5, left: 6),
+                  child: Text(
+                    "5",
+                    style: GoogleFonts.getFont('Bungee',
+                        textStyle: const TextStyle(
+                            color: Color.fromARGB(167, 12, 84, 143),
+                            fontSize: 32)),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           )
         ],
       )),

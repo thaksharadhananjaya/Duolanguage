@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:duolanguage/screens/profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,10 +7,22 @@ import 'package:google_fonts/google_fonts.dart';
 import '../config.dart';
 
 class CustomAppBar extends AppBar {
-  CustomAppBar({Key? key})
+  final BuildContext context;
+  final bool lead;
+  CustomAppBar(this.context, this.lead, {Key? key})
       : super(
           key: key,
           elevation: 0,
+          leading: lead
+              ? InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Icon(
+                    Icons.arrow_back,
+                    color: kBackgroundColor,
+                  ))
+              : const SizedBox(),
           foregroundColor: Colors.white,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
@@ -51,19 +64,26 @@ class CustomAppBar extends AppBar {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: kPadding),
               child: InkWell(
+                  onTap: () {
+                    Navigator.of(context).push(
+                        MaterialPageRoute(builder: ((context) => Profile())));
+                  },
                   child: CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Text(
-                  FirebaseAuth.instance.currentUser!.displayName.toString().toUpperCase().substring(0,1),
-                  style: GoogleFonts.getFont(
-                    'Bungee',
-                    textStyle: const TextStyle(
-                      color: kPrimaryColor,
-                      fontSize: 24,
+                    backgroundColor: Colors.white,
+                    child: Text(
+                      FirebaseAuth.instance.currentUser!.displayName
+                          .toString()
+                          .toUpperCase()
+                          .substring(0, 1),
+                      style: GoogleFonts.getFont(
+                        'Bungee',
+                        textStyle: const TextStyle(
+                          color: kPrimaryColor,
+                          fontSize: 24,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              )),
+                  )),
             )
           ],
         );

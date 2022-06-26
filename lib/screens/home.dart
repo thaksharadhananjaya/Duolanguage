@@ -5,27 +5,38 @@ import 'package:duolanguage/util/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
+import 'package:move_to_background/move_to_background.dart';
 
 class Home extends StatelessWidget {
   const Home({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(),
-      body: Padding(
-        padding: const EdgeInsets.all(kPadding),
-        child:
-            Column(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-          buildCard("Vocabulary", "voc.json", () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const Category()));
-          }),
-          buildCard("Quiz Game", "quiz.json", () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const Quiz()));
-          }),
-        ]),
+    return WillPopScope(
+      onWillPop: () async {
+        MoveToBackground.moveTaskToBack();
+        return false;
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(context, false),
+        body: Padding(
+          padding: const EdgeInsets.all(kPadding),
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                buildCard("Vocabulary", "voc.json", () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const Category()));
+                }),
+                //const SizedBox(height: 72,),
+                buildCard("Quiz Game", "quiz.json", () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => const Quiz()));
+                }),
+              ]),
+        ),
       ),
     );
   }
@@ -51,8 +62,10 @@ class Home extends StatelessWidget {
               alignment: Alignment.topCenter,
               child: Padding(
                 padding: const EdgeInsets.only(top: 16),
-                child:
-                    Lottie.asset("asstes/jsons/duck.json"),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 64),
+                  child: Lottie.asset("assets/jsons/$path"),
+                ),
               ),
             ),
             Align(

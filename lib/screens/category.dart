@@ -13,38 +13,31 @@ class Category extends StatefulWidget {
 }
 
 class _CategoryState extends State<Category> {
-  List category = [
-    [
-      "Animals",
-      "https://dl.dropboxusercontent.com/s/kfsv02ibt2l1n68/elephant.png"
-    ],
-    ["Vehicles", "https://dl.dropbox.com/s/rprnq5bo83kq05k/cruise-control.png"],
-    ["Jobs", "https://dl.dropbox.com/s/tg40p4kjfqkofyg/job-search.png"]
-  ];
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      appBar: CustomAppBar(),
+      appBar: CustomAppBar(context, true),
       body: Padding(
         padding: const EdgeInsets.all(kPadding),
         child: Column(
-      children: [
-        buildTopic(),
-        FutureBuilder<QuerySnapshot>(
-            future:
-                FirebaseFirestore.instance.collection('vocabulary').get(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return buildCategoryList(snapshot);
-              }
-              return const Center(
-                  child: SizedBox(
-                      width: 100,
-                      height: 100,
-                      child: CircularProgressIndicator()));
-            }),
-      ],
+          children: [
+            buildTopic(),
+            FutureBuilder<QuerySnapshot>(
+                future:
+                    FirebaseFirestore.instance.collection('vocabulary').get(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return buildCategoryList(snapshot);
+                  }
+                  return const Center(
+                      child: SizedBox(
+                          width: 100,
+                          height: 100,
+                          child: CircularProgressIndicator()));
+                }),
+          ],
         ),
       ),
     );
@@ -58,15 +51,13 @@ class _CategoryState extends State<Category> {
         children: [
           Text("SELECT  ",
               textAlign: TextAlign.center,
-              style: GoogleFonts.getFont(
-                'Bungee',
+              style: GoogleFonts.bungee(
                 textStyle:
                     const TextStyle(color: kSeconderyColor, fontSize: 28),
               )),
           Text("CATEGORY",
               textAlign: TextAlign.center,
-              style: GoogleFonts.getFont(
-                'Bungee',
+              style: GoogleFonts.bungee(
                 textStyle: const TextStyle(color: kPrimaryColor, fontSize: 28),
               )),
         ],
@@ -82,7 +73,7 @@ class _CategoryState extends State<Category> {
           itemCount: snapshot.data.docs.length,
           itemBuilder: (context, index) {
             DocumentSnapshot data = snapshot.data!.docs[index];
-            
+
             return buildCard(index, data['category'], data['link'], data.id);
           }),
     );
@@ -130,8 +121,7 @@ class _CategoryState extends State<Category> {
                           bottomRight: Radius.circular(32.0))),
                   child: Text(text,
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.getFont(
-                        'Bungee',
+                      style: GoogleFonts.bungee(
                         textStyle: TextStyle(
                             color: index % 2 == 0
                                 ? kPrimaryColor

@@ -46,6 +46,7 @@ dependencies:
   google_sign_in: ^5.3.3
   country_icons: ^2.0.2
   cached_network_image: ^3.2.1
+  move_to_background: ^1.0.2
 
 dev_dependencies:
   flutter_test:
@@ -76,10 +77,13 @@ flutter:
     - assets/jsons/wrong.json
     - assets/jsons/learn.json
     - assets/jsons/score.json
-    - assets/jsons/duck.json
-    - assets/images/us_flag.jpg
-    - assets/images/spanish_flag.jpg
+    - assets/jsons/earn.json
+    - assets/jsons/email.json
+    - assets/jsons/complete.json
+    - assets/jsons/logo.json
+    
     - assets/images/sign.png
+    - assets/images/logo.png
     - assets/images/google.png
     - assets/images/sign2.png
     - assets/images/speaker.png

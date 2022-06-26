@@ -1,13 +1,15 @@
 import 'package:duolanguage/config.dart';
 import 'package:duolanguage/screens/signup.dart';
+import 'package:duolanguage/util/custom_snakbar.dart';
 import 'package:duolanguage/util/emailfeild.dart';
+import 'package:duolanguage/util/error.dart';
 import 'package:duolanguage/util/google_button.dart';
 import 'package:duolanguage/util/passowrdfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
-import 'package:pushable_button/pushable_button.dart';
+import 'package:move_to_background/move_to_background.dart';
 
 import '../firebase/authentication.dart';
 import '../util/gradient_text.dart';
@@ -22,70 +24,152 @@ class Signin extends StatefulWidget {
 }
 
 class _SigninState extends State<Signin> {
-  TextEditingController textEditingControllerEmail = TextEditingController();
-  TextEditingController textEditingControllerPass = TextEditingController();
+  final TextEditingController textEditingControllerEmail =
+      TextEditingController();
+  final TextEditingController textEditingControllerPass =
+      TextEditingController();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  String errorMail = "", errorPassword = "";
   bool passVisible = true;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: kBackgroundColor,
-      body: SafeArea(
-          child: Padding(
-        padding: const EdgeInsets.only(
-            top: 52, bottom: kPadding, right: kPadding, left: kPadding),
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.topCenter,
-              child: Lottie.asset('assets/jsons/learn.json', width: 300),
-            ),
-            buildBottomImages(),
-            Center(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "  Email",
-                    style: GoogleFonts.getFont('Poppins',
-                        textStyle: buildLabelStyle()),
-                  ),
-                  EmailField(controller: textEditingControllerEmail),
-                  Text(
-                    "  Password",
-                    style: GoogleFonts.getFont('Poppins',
-                        textStyle: buildLabelStyle()),
-                  ),
-                  PasswordField(
-                    controller: textEditingControllerPass,
-                    hint: "Password",
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      bottom: 16,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(
-                          width: 35,
-                        ),
-                        buildSigninButton(),
-                        const SizedBox(
-                          width: 16,
-                        ),
-                        const GoogleButton()
-                      ],
-                    ),
-                  ),
-                  buildSignup()
-                ],
+    return WillPopScope(
+      onWillPop: () async {
+        {
+          MoveToBackground.moveTaskToBack();
+          return false;
+        }
+      },
+      child: Scaffold(
+        backgroundColor: kBackgroundColor,
+        body: SafeArea(
+            child: Padding(
+          padding: const EdgeInsets.only(
+              top: 52, bottom: kPadding, right: kPadding, left: kPadding),
+          child: Stack(
+            children: [
+              Align(
+                alignment: Alignment.topCenter,
+                child: Lottie.asset('assets/jsons/logo.json', width: 180, height: 180),
               ),
-            ),
-          ],
-        ),
-      )),
+              buildBottomImages(),
+              Center(
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "  Email",
+                        style: GoogleFonts.getFont('Poppins',
+                            textStyle: buildLabelStyle()),
+                      ),
+                      EmailField(
+                        controller: textEditingControllerEmail,
+                        validator: (text) {
+                          validateEmail(text);
+                        },
+                      ),
+                      ErrorMessage(
+                        message: errorMail,
+                      ),
+                      Text(
+                        "  Password",
+                        style: GoogleFonts.getFont('Poppins',
+                            textStyle: buildLabelStyle()),
+                      ),
+                      PasswordField(
+                        controller: textEditingControllerPass,
+                        hint: "Password",
+                        validator: (text) {
+                          if (text.isEmpty) {
+                            setState(() {
+                              errorPassword = 'Enter your password';
+                            });
+                          } else {
+                            setState(() {
+                              errorPassword = "";
+                            });
+                          }
+                        },
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ErrorMessage(
+                            message: errorPassword,
+                          ),
+                          InkWell(
+                            onTap: () {
+                              if(textEditingControllerEmail.text.isNotEmpty){
+                                Authentication.sendPasswordRestLink(context: context, email: textEditingControllerEmail.text);
+                              }else{
+                                showCustomSnakBar("Please enter your email.", context);
+                              }
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 10, right: 12),
+                              child: SizedBox(
+                                height: 20,
+                                child: Text(
+                                  "Reset Password",
+                                  style: GoogleFonts.getFont('Poppins',
+                                      textStyle: const TextStyle(
+                                          color: Colors.black45, fontSize: 11)),
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: 16,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(
+                              width: 35,
+                            ),
+                            buildSigninButton(),
+                            const SizedBox(
+                              width: 16,
+                            ),
+                            const GoogleButton()
+                          ],
+                        ),
+                      ),
+                      buildSignup()
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        )),
+      ),
     );
+  }
+
+  void validateEmail(text) {
+    RegExp regex = RegExp(
+        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$');
+    if (text.isEmpty) {
+      setState(() {
+        errorMail = 'Enter your email';
+      });
+    } else if (!regex.hasMatch(text)) {
+      setState(() {
+        errorMail = 'Invalid email';
+      });
+    } else {
+      setState(() {
+        errorMail = "";
+      });
+    }
   }
 
   Align buildBottomImages() {
@@ -143,14 +227,23 @@ class _SigninState extends State<Signin> {
   CustomButton buildSigninButton() {
     return CustomButton(
         onPress: () async {
-          User? user = await Authentication.signInWithEmailAndPassword(context: context,
-              email: "thaksharadghananjaya@gmail.com", password: "1234556");
-          if (!mounted) return;
-          if (user != null) {
-            if (user.emailVerified) {
-            } else {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const EmailVerify()));
+          formKey.currentState!.validate();
+          if (errorMail == "" && errorPassword == "") {
+            User? user = await Authentication.signInWithEmailAndPassword(
+                context: context,
+                email: textEditingControllerEmail.text,
+                password: textEditingControllerPass.text);
+            if (!mounted) return;
+            if (user != null) {
+              if (user.emailVerified) {
+              } else {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => EmailVerify(
+                              email: user.email.toString(),
+                            )));
+              }
             }
           }
         },

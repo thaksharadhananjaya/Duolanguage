@@ -1,13 +1,17 @@
 import 'dart:async';
 
 import 'package:duolanguage/config.dart';
-import 'package:duolanguage/screens/quiz.dart';
+import 'package:duolanguage/screens/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
+
+import '../util/gradient_text.dart';
 
 class EmailVerify extends StatefulWidget {
-  
-  const EmailVerify({Key? key}) : super(key: key);
+  final String email;
+  const EmailVerify({Key? key, required this.email}) : super(key: key);
 
   @override
   State<EmailVerify> createState() => _EmailVerifyState();
@@ -39,7 +43,7 @@ class _EmailVerifyState extends State<EmailVerify> {
           timer.cancel();
           if (!mounted) return;
           Navigator.push(
-              context, MaterialPageRoute(builder: (context) => const Quiz()));
+              context, MaterialPageRoute(builder: (context) => const Home()));
         }
       },
     );
@@ -47,10 +51,42 @@ class _EmailVerifyState extends State<EmailVerify> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       backgroundColor: kBackgroundColor,
-      body: Center(
-        child: CircularProgressIndicator(),
+      appBar: AppBar(
+        centerTitle: true,
+        leading: null,
+        backgroundColor: kBackgroundColor,
+        elevation: 0,
+        toolbarHeight: 80,
+        title: GradientText(
+          "Email Verification",
+          style: GoogleFonts.bungee(
+            textStyle: const TextStyle(fontSize: 22),
+          ),
+          gradient: const LinearGradient(colors: [
+            kPrimaryColor,
+            kSeconderyColor,
+          ]),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(kPadding),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("Verification link sent to ",
+                style: GoogleFonts.poppins(
+                  textStyle: const TextStyle(fontSize: 18),
+                )),
+            Text(" ${widget.email}",
+                style: GoogleFonts.poppins(
+                  textStyle:
+                      const TextStyle(color: kPrimaryColor, fontSize: 16),
+                )),
+            Lottie.asset("assets/jsons/email.json"),
+          ],
+        ),
       ),
     );
   }
