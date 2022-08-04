@@ -25,8 +25,7 @@ class _SpalshState extends State<Spalsh> {
           children: [
             Lottie.asset(
               "assets/jsons/logo.json",
-              width: 200,
-              height: 200,
+             
             ),
             const SizedBox(
               height: 8,

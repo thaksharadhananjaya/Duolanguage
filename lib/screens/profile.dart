@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delayed_display/delayed_display.dart';
 import 'package:duolanguage/config.dart';
-import 'package:duolanguage/screens/signin.dart';
+import 'package:duolanguage/screens/login/signin.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -100,18 +100,21 @@ class Profile extends StatelessWidget {
     );
   }
 
-  DelayedDisplay buildSignoutButton(BuildContext context) {
-    return DelayedDisplay(
-        delay: const Duration(milliseconds: 500),
-      child: CustomButton(
-          onPress: () async {
-            await Authentication.signOut(context: context);
-    
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => const Signin()));
-          },
-          label: "SIGN Out",
-          width: 180.0),
+  Padding buildSignoutButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 32),
+      child: DelayedDisplay(
+          delay: const Duration(milliseconds: 500),
+        child: CustomButton(
+            onPress: () async {
+              await Authentication.signOut(context: context);
+      
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => const Signin()));
+            },
+            label: "Sign Out",
+            width: 180.0),
+      ),
     );
   }
 

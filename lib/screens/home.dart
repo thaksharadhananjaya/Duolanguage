@@ -1,42 +1,36 @@
 import 'package:duolanguage/config.dart';
-import 'package:duolanguage/screens/category.dart';
+import 'package:duolanguage/screens/vocabulary/category.dart';
 import 'package:duolanguage/screens/quiz.dart';
 import 'package:duolanguage/util/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
-import 'package:move_to_background/move_to_background.dart';
 
 class Home extends StatelessWidget {
-  const Home({Key? key}) : super(key: key);
+  final String language;
+  const Home({Key? key, required this.language}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        MoveToBackground.moveTaskToBack();
-        return false;
-      },
-      child: Scaffold(
-        appBar: CustomAppBar(context, false),
-        body: Padding(
-          padding: const EdgeInsets.all(kPadding),
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                buildCard("Vocabulary", "voc.json", () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const Category()));
-                }),
-                //const SizedBox(height: 72,),
-                buildCard("Quiz Game", "quiz.json", () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => const Quiz()));
-                }),
-              ]),
-        ),
+    return Scaffold(
+      appBar: CustomAppBar(context, true),
+      body: Padding(
+        padding: const EdgeInsets.all(kPadding),
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              buildCard("Vocabulary", "voc.json", () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Category(language: language,)));
+              }),
+              //const SizedBox(height: 72,),
+              buildCard("Quiz Game", "quiz.json", () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) =>  Quiz(language: language,)));
+              }),
+            ]),
       ),
     );
   }

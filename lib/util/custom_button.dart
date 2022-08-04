@@ -29,8 +29,8 @@ class CustomButton extends StatelessWidget {
         onPressed: ()=> onPress(),
         child: Text(
           label,
-          style: GoogleFonts.getFont(
-            'Bungee',
+          style: GoogleFonts.bungee(
+          
             textStyle: const TextStyle(color: Colors.white, fontSize: 24),
           ),
         ),

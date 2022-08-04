@@ -121,7 +121,8 @@ class Authentication {
     try {
       FirebaseAuth auth = FirebaseAuth.instance;
       await auth.sendPasswordResetEmail(email: email);
-      showCustomSnakBar('Password rest link sent to \n$email.', context, color: Colors.green);
+      showCustomSnakBar('Password rest link sent to \n$email.', context,
+          color: Colors.green);
     } on FirebaseAuthException catch (e) {
       showCustomSnakBar(e.message.toString(), context);
     }
@@ -140,11 +141,15 @@ class Authentication {
   }
 
   static Future<void> setPoints(String uid) async {
-    print("uid: $uid");
     try {
       DocumentReference point =
           FirebaseFirestore.instance.collection('user').doc(uid);
-      await point.set({'point': 0});
+
+      point.get().then((value) async {
+        if (!value.exists) {
+          await point.set({'point': 0});
+        }
+      });
     } on FirebaseException catch (error) {
       if (kDebugMode) {
         print(error);

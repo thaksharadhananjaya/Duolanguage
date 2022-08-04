@@ -1,5 +1,6 @@
 import 'package:duolanguage/config.dart';
 import 'package:duolanguage/firebase/authentication.dart';
+import 'package:duolanguage/screens/languages.dart';
 import 'package:duolanguage/screens/quiz.dart';
 
 import 'package:flutter/material.dart';
@@ -33,11 +34,11 @@ class SetName extends StatelessWidget {
   CustomButton buildNextButton(BuildContext context) {
     return CustomButton(
         onPress: () async {
-          bool result = await Authentication.updateUserName("kasun");
+          bool result = await Authentication.updateUserName(textEditingControllerName.text);
           //if (!mounted) return;
           if (result) {
             Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => const Quiz()));
+                .push(MaterialPageRoute(builder: (context) => const Language()));
           }
         },
         label: "NEXT",

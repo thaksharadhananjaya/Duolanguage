@@ -1,4 +1,5 @@
 import 'package:duolanguage/screens/home.dart';
+import 'package:duolanguage/screens/languages.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -27,7 +28,7 @@ class _GoogleButtonState extends State<GoogleButton> {
               if (!mounted) return;
               if (user != null) {
                 Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const Home()));
+                    MaterialPageRoute(builder: (context) => const Language()));
               }
               setState(() {
                 progress = false;
@@ -36,7 +37,6 @@ class _GoogleButtonState extends State<GoogleButton> {
               // await Authentication.signOut(context: context);
             },
       child: SizedBox(
-        width: 50,
         height: 50,
         child: Card(
             color: Colors.white,

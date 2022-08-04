@@ -1,9 +1,10 @@
-import 'package:duolanguage/screens/category.dart';
+import 'package:duolanguage/screens/vocabulary/category.dart';
 import 'package:duolanguage/screens/home.dart';
+import 'package:duolanguage/screens/languages.dart';
 import 'package:duolanguage/screens/profile.dart';
-import 'package:duolanguage/screens/signin.dart';
+import 'package:duolanguage/screens/login/signin.dart';
 import 'package:duolanguage/screens/splash.dart';
-import 'package:duolanguage/screens/verifi_email.dart';
+import 'package:duolanguage/screens/login/verifi_email.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -32,15 +33,15 @@ class MyApp extends StatelessWidget {
           textTheme: const TextTheme(
             headline4: TextStyle(fontWeight: FontWeight.w700, fontSize: 24),
           )),
-      home: FutureBuilder(
-          future: Future.delayed(const Duration(seconds: 3)),
+      home:  FutureBuilder(
+          future: Future.delayed(const Duration(seconds: 4)),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               final FirebaseAuth auth = FirebaseAuth.instance;
               final User? user = auth.currentUser;
               if (user != null) {
                 if(user.emailVerified){
-                  return const Home();
+                  return const Language() ;
                 }else{
                   return  EmailVerify(email: user.email.toString(),);
                 }
@@ -49,7 +50,7 @@ class MyApp extends StatelessWidget {
               }
             }
             return Spalsh();
-          }),
+          }) ,
     );
   }
 }

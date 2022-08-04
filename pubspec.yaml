@@ -44,9 +44,9 @@ dependencies:
   cloud_firestore: ^3.1.18
   firebase_auth: ^3.3.20
   google_sign_in: ^5.3.3
-  country_icons: ^2.0.2
   cached_network_image: ^3.2.1
   move_to_background: ^1.0.2
+  translator: ^0.1.7
 
 dev_dependencies:
   flutter_test:
@@ -84,9 +84,12 @@ flutter:
     
     - assets/images/sign.png
     - assets/images/logo.png
+    - assets/images/es_flag.jpg
+    - assets/images/us_flag.png
     - assets/images/google.png
     - assets/images/sign2.png
     - assets/images/speaker.png
+    - assets/images/fr_flag.jpg
     - assets/images/rect.jpg
     - assets/images/mic.png
     - assets/images/score.gif

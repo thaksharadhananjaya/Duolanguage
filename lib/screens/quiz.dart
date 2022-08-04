@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:duolanguage/config.dart';
-import 'package:duolanguage/model/quiz_data.dart';
 import 'package:duolanguage/util/custom_appbar.dart';
 import 'package:duolanguage/util/custom_snakbar.dart';
 import 'package:duolanguage/util/win_dialog.dart';
@@ -9,22 +8,25 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
-import 'package:pushable_button/pushable_button.dart';
 import 'package:delayed_display/delayed_display.dart';
+import 'package:translator/translator.dart';
 
+import '../util/custom_button.dart';
 import '../util/gradient_text.dart';
 
 class Quiz extends StatefulWidget {
-  const Quiz({Key? key}) : super(key: key);
+  final String language;
+  const Quiz({Key? key, required this.language}) : super(key: key);
 
   @override
   State<Quiz> createState() => _QuizState();
 }
 
 class _QuizState extends State<Quiz> {
-  int selectedIndex = 0;
+  int selectedIndex = -1;
   int pageIndex = 0;
   int maxPage = 0;
+  final translator = GoogleTranslator();
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +50,7 @@ class _QuizState extends State<Quiz> {
                       child: CircularProgressIndicator()));
             }),
       ),
+      
     );
   }
 
@@ -73,6 +76,7 @@ class _QuizState extends State<Quiz> {
   }
 
   DelayedDisplay buildTopic(String word) {
+    
     return DelayedDisplay(
       delay: const Duration(microseconds: 100),
       child: Padding(
@@ -80,20 +84,25 @@ class _QuizState extends State<Quiz> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('CHOSE A  ',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.getFont(
-                  'Bungee',
-                  textStyle:
-                      const TextStyle(color: kSeconderyColor, fontSize: 24),
-                )),
-            Text("'$word'",
-                textAlign: TextAlign.center,
-                style: GoogleFonts.getFont(
-                  'Bungee',
-                  textStyle:
-                      const TextStyle(color: kPrimaryColor, fontSize: 24),
-                )),
+            Text("CHOOSE A   ",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.bungee(
+                      textStyle:
+                          const TextStyle(color: kSeconderyColor, fontSize: 24),
+                    )),
+             FutureBuilder(
+              future: translate(word),
+              builder: (context, snapshot) {
+                if(snapshot.hasData)
+                {return Text(" '${snapshot.data}'",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.bungee(
+                      textStyle:
+                          const TextStyle(color: kPrimaryColor, fontSize: 24),
+                    ));}
+                    return const SizedBox();
+              }
+            ),
           ],
         ),
       ),
@@ -109,8 +118,8 @@ class _QuizState extends State<Quiz> {
             crossAxisCount: 2, crossAxisSpacing: 24, mainAxisSpacing: 36),
         itemCount: 4,
         itemBuilder: (context, index) {
-          var answer = data["${index + 1}"];
-          return buildAnsCard(index + 1, answer["link"], answer["correct"]);
+          var answer = data[index];
+          return buildAnsCard(index, answer["link"], answer["correct"]);
         },
       ),
     );
@@ -149,25 +158,13 @@ class _QuizState extends State<Quiz> {
 
   Padding buildCheckButton(var data) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 32, right: 100, left: 100),
+      padding: const EdgeInsets.only(top: 32, right: 100, left: 100),
       child: DelayedDisplay(
         delay: const Duration(milliseconds: 500),
-        child: PushableButton(
-          height: 50,
-          elevation: 5,
-          hslColor: HSLColor.fromColor(kSeconderyColor),
-          shadow: BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 3,
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-          onPressed: () => checkAnswer(data),
-          child: Text('CHECK',
-              style: GoogleFonts.getFont(
-                'Bungee',
-                textStyle: const TextStyle(color: Colors.white, fontSize: 22),
-              )),
+        child: CustomButton(
+          label: 'CHECK',
+          onPress: () => checkAnswer(data),
+          width: double.maxFinite,
         ),
       ),
     );
@@ -207,7 +204,8 @@ class _QuizState extends State<Quiz> {
             child: Text(
               "Complete All Quizes",
               style: GoogleFonts.poppins(
-                  textStyle: const TextStyle(color: Colors.green, fontSize: 16)),
+                  textStyle:
+                      const TextStyle(color: Colors.green, fontSize: 16)),
             ),
           ),
           const SizedBox(
@@ -219,9 +217,9 @@ class _QuizState extends State<Quiz> {
   }
 
   Future<void> checkAnswer(data) async {
-    if (selectedIndex == 0) {
+    if (selectedIndex == -1) {
       showCustomSnakBar("Please select your answer !", context);
-    } else if (data[selectedIndex.toString()]["correct"]) {
+    } else if (data[selectedIndex]["correct"]) {
       final FirebaseAuth auth = FirebaseAuth.instance;
       final User? user = auth.currentUser;
       FirebaseFirestore.instance
@@ -255,5 +253,17 @@ class _QuizState extends State<Quiz> {
         selectedIndex = -1;
       });
     }
+  }
+
+  Future<String> translate(String text) async {
+    String transWord = "";
+    try {
+      final Translation translation =
+          await translator.translate(text, to: widget.language);
+      transWord = translation.text;
+    } catch (e) {
+      print(e);
+    }
+    return transWord;
   }
 }
