@@ -8,7 +8,7 @@ import 'package:duolanguage/util/passowrdfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lottie/lottie.dart';
+
 import 'package:move_to_background/move_to_background.dart';
 
 import '../../firebase/authentication.dart';

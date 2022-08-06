@@ -1,7 +1,7 @@
 import 'package:duolanguage/config.dart';
 import 'package:duolanguage/firebase/authentication.dart';
 import 'package:duolanguage/screens/languages.dart';
-import 'package:duolanguage/screens/quiz.dart';
+
 
 import 'package:flutter/material.dart';
 

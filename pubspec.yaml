@@ -83,7 +83,7 @@ flutter:
     - assets/jsons/logo.json
     
     - assets/images/sign.png
-    - assets/images/logo.png
+    - assets/images/logo.jpg
     - assets/images/es_flag.jpg
     - assets/images/us_flag.png
     - assets/images/google.png
